@@ -12,6 +12,7 @@
     "keywords": [],
     "author": "Quorafind",
     "devDependencies": {
+        "@cooklang/cooklang-ts": "^1.2.4",
         "@sveltejs/vite-plugin-svelte": "^1.0.1",
         "@tsconfig/svelte": "^3.0.0",
         "@types/node": "^16.11.6",

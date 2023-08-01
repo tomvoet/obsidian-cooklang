@@ -1,67 +1,57 @@
-import { App, ItemView, Platform, Plugin, PluginSettingTab, Setting, WorkspaceLeaf } from 'obsidian';
+import { App, Platform, Plugin, PluginSettingTab, Setting, WorkspaceLeaf } from 'obsidian';
 
-import DiceRoller from "./ui/DIceRoller.svelte";
+import RecipeView from './ui/RecipeView.svelte';
 
-const VIEW_TYPE = "svelte-view";
+import { VIEW_TYPE } from './ui/ShoppingListView';
+import CookShoppingListView from './ui/ShoppingListView';
 
-// Remember to rename these classes and interfaces!
+import store from './store';
 
-interface MyPluginSettings {
+interface CookPluginSettings {
+    shoppingListRibbonIcon: boolean;
     mySetting: string;
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
+const DEFAULT_SETTINGS: CookPluginSettings = {
+    shoppingListRibbonIcon: true,
     mySetting: 'default'
 }
 
-
-class MySvelteView extends ItemView {
-    view: DiceRoller;
-
-    getViewType(): string {
-        return VIEW_TYPE;
-    }
-
-    getDisplayText(): string {
-        return "Dice Roller";
-    }
-
-    getIcon(): string {
-        return "dice";
-    }
-
-    async onOpen(): Promise<void> {
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        this.view = new DiceRoller({ target: (this as any).contentEl, props: {} });
-    }
-}
-
-export default class MyPlugin extends Plugin {
-    private view: MySvelteView;
-    settings: MyPluginSettings;
+export default class CookPlugin extends Plugin {
+    private view: CookShoppingListView;
+    settings: CookPluginSettings;
 
     async onload() {
         await this.loadSettings();
 
+        store.plugin.set(this);
+
+        this.registerMarkdownCodeBlockProcessor('cooklang', (source, el, _) => {
+            new RecipeView({
+                target: el, props: {
+                    source: source
+                }
+            });
+        });
+
         this.registerView(
             VIEW_TYPE,
-            (leaf: WorkspaceLeaf) => (this.view = new MySvelteView(leaf))
+            (leaf: WorkspaceLeaf) => (this.view = new CookShoppingListView(leaf))
         );
 
         this.app.workspace.onLayoutReady(this.onLayoutReady.bind(this));
 
         // This creates an icon in the left ribbon.
-        this.addRibbonIcon('dice', 'Sample Plugin', (evt: MouseEvent) => this.openMapView());
+        this.addRibbonIcon('shopping-cart', 'Shopping List', (evt: MouseEvent) => this.openShoppingList());
 
         // This adds a simple command that can be triggered anywhere
         this.addCommand({
-            id: 'open-sample-modal-simple',
-            name: 'Open sample modal (simple)',
-            callback: () => this.openMapView(),
+            id: 'cook-open-shopping-list',
+            name: 'Open Shopping List',
+            callback: () => this.openShoppingList(),
         });
         // This adds a settings tab so the user can configure various aspects of the plugin
-        this.addSettingTab(new SampleSettingTab(this.app, this));
+        this.addSettingTab(new CookSettingTab(this.app, this));
     }
 
     onLayoutReady(): void {
@@ -74,7 +64,9 @@ export default class MyPlugin extends Plugin {
     }
 
     onunload() {
-
+        this.app.workspace
+            .getLeavesOfType(VIEW_TYPE)
+            .forEach((leaf) => leaf.detach());
     }
 
     async loadSettings() {
@@ -85,7 +77,7 @@ export default class MyPlugin extends Plugin {
         await this.saveData(this.settings);
     }
 
-    async openMapView() {
+    async openShoppingList() {
         const workspace = this.app.workspace;
         workspace.detachLeavesOfType(VIEW_TYPE);
         const leaf = workspace.getLeaf(
@@ -97,10 +89,10 @@ export default class MyPlugin extends Plugin {
     }
 }
 
-class SampleSettingTab extends PluginSettingTab {
-    plugin: MyPlugin;
+class CookSettingTab extends PluginSettingTab {
+    plugin: CookPlugin;
 
-    constructor(app: App, plugin: MyPlugin) {
+    constructor(app: App, plugin: CookPlugin) {
         super(app, plugin);
         this.plugin = plugin;
     }
@@ -111,6 +103,19 @@ class SampleSettingTab extends PluginSettingTab {
         containerEl.empty();
 
         containerEl.createEl('h2', { text: 'Settings for my awesome plugin.' });
+
+        new Setting(containerEl)
+            .setName('Shopping List Ribbon Icon')
+            .setDesc('When enabled, a shopping list icon will appear in the left ribbon.')
+            .addToggle((toggle) => {
+                toggle
+                    .setValue(true)
+                    .onChange(async (value) => {
+                        console.log('Toggled', value);
+                        this.plugin.settings.shoppingListRibbonIcon = value;
+                        await this.plugin.saveSettings();
+                    });
+            });
 
         new Setting(containerEl)
             .setName('Setting #1')

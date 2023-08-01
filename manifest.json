@@ -1,10 +1,10 @@
 {
-	"id": "obsidian-svelte-starter",
-	"name": "Svelte Starter",
-	"version": "1.0.3",
+	"id": "obsidian-cooklang",
+	"name": "Cooklang",
+	"version": "0.0.1",
 	"minAppVersion": "0.12.0",
-	"description": "A plugin development template for devs who want to use svelte in Obsidian.",
-	"author": "Quorafind",
+	"description": "Cooklang is a language for writing recipes.",
+	"author": "tomvoet",
 	"authorUrl": "https://obsidian.md",
 	"isDesktopOnly": false
 }
