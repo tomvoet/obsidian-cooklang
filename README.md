@@ -1,6 +1,15 @@
-# obsidian-svelte-starter
+# obsidian-cooklang
 
-A starter template for creating an Obsidian plugin with SvelteJS.
+A plugin for displaying cooklang recipes. Using this plugin you can simply display your cooklang recipes by putting 
+them in a "cooklang" codeblock.
+
+~~~markdown
+```cooklang
+Place @toast{1} on a #plate{} and put @mayonnaise{1%tbsp} on it.
+```
+~~~
+
+Keeping the recipes in seperate codeblocks, allows you to also insert tags and other metadata or even other text into the document.
 
 # Features
 
