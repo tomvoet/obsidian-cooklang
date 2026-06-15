@@ -3,7 +3,7 @@
 
     let { duration = 0 }: { duration?: number } = $props();
 
-    const total = duration * 60;
+    const total = $derived(duration * 60);
 
     let timer = $state(0);
     let timerRunning = $state(false);

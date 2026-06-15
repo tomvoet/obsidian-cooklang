@@ -15,35 +15,39 @@
         shoppingList: { add: addIngredient },
     } = store;
 
-    const recipe: Recipe = new Recipe(source);
+    const recipe: Recipe = $derived(new Recipe(source));
 
-    const clean_ingredients: Ingredient[] = recipe.ingredients
-        .reduce((acc, ingredient) => {
-            const existing = acc.find((i) => i.name === ingredient.name);
+    const clean_ingredients: Ingredient[] = $derived(
+        recipe.ingredients
+            .reduce((acc, ingredient) => {
+                const existing = acc.find((i) => i.name === ingredient.name);
 
-            if (existing && existing.units === ingredient.units) {
-                existing.quantity =
-                    Number(existing.quantity) + Number(ingredient.quantity);
-            } else {
-                acc.push(ingredient);
-            }
+                if (existing && existing.units === ingredient.units) {
+                    existing.quantity =
+                        Number(existing.quantity) + Number(ingredient.quantity);
+                } else {
+                    acc.push(ingredient);
+                }
 
-            return acc;
-        }, [] as Ingredient[])
-        .sort((a, b) => a.name.localeCompare(b.name));
-
-    const clean_cookwares: Cookware[] = recipe.cookwares.sort((a, b) =>
-        a.name.localeCompare(b.name),
+                return acc;
+            }, [] as Ingredient[])
+            .sort((a, b) => a.name.localeCompare(b.name)),
     );
 
-    const timers: Timer[] = [];
+    const clean_cookwares: Cookware[] = $derived(
+        recipe.cookwares.sort((a, b) => a.name.localeCompare(b.name)),
+    );
 
-    recipe.steps.forEach((step) => {
-        step.forEach((substep) => {
-            if (substep.type === "timer") {
-                timers.push(substep);
-            }
+    const timers: Timer[] = $derived.by(() => {
+        const found: Timer[] = [];
+        recipe.steps.forEach((step) => {
+            step.forEach((substep) => {
+                if (substep.type === "timer") {
+                    found.push(substep);
+                }
+            });
         });
+        return found;
     });
 </script>
 
@@ -70,10 +74,16 @@
         <h2>Ingredients</h2>
         <ul class="cook-requirements-wrapper">
             {#each clean_ingredients as ingredient (ingredient.name)}
-                <li onclick={() => addIngredient(ingredient)}>
-                    {ingredient.quantity}
-                    {ingredient.units}
-                    {ingredient.name}
+                <li>
+                    <button
+                        type="button"
+                        class="cook-list-item"
+                        onclick={() => addIngredient(ingredient)}
+                    >
+                        {ingredient.quantity}
+                        {ingredient.units}
+                        {ingredient.name}
+                    </button>
                 </li>
             {/each}
         </ul>
@@ -123,5 +133,16 @@
         background-color: #f5f5f509;
         padding: 0.05rem;
         border-radius: 0.25rem;
+    }
+
+    .cook-list-item {
+        width: 100%;
+        padding: 0;
+        font: inherit;
+        color: inherit;
+        text-align: left;
+        background: none;
+        border: none;
+        cursor: pointer;
     }
 </style>
