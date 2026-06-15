@@ -1,0 +1,2 @@
+# Normalize line endings to LF (matches .editorconfig and oxfmt).
+* text=auto eol=lf
