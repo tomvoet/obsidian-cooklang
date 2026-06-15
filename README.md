@@ -1,7 +1,7 @@
-# obsidian-cooklang
+# Obsidian Cooklang
 
-A plugin for displaying cooklang recipes. Using this plugin you can simply display your cooklang recipes by putting 
-them in a "cooklang" codeblock.
+Render [Cooklang](https://cooklang.org/) recipes inside Obsidian. Write a recipe in a
+`cooklang` code block and the plugin renders the ingredients, cookware, timers and steps.
 
 ~~~markdown
 ```cooklang
@@ -9,44 +9,46 @@ Place @toast{1} on a #plate{} and put @mayonnaise{1%tbsp} on it.
 ```
 ~~~
 
-Keeping the recipes in seperate codeblocks, allows you to also insert tags and other metadata or even other text into the document.
+Keeping recipes in separate code blocks means you can still add tags, metadata and prose
+around them in the same note.
 
-# Features
+## Features
 
-This project comes preconfigured with [Typescript](https://www.typescriptlang.org/), [vite](https://vitejs.dev), and
-[Rollup.js](https://rollupjs.org).
+- Renders ingredients, cookware, timers and step-by-step instructions from a `cooklang` block.
+- Built-in countdown timers for any `~{...}` timer in the recipe.
+- A shopping-list side panel — click ingredients to add them, click again to remove.
 
-# Getting Started
+## Development
 
-Click "use this template" to create your own fork of this repo. Make sure to reference the official sample plugin for
-information about how to get started with the Obsidian API and how to submit your plugin to the Community Plugin
-Gallery.
+This plugin is built with [Svelte 5](https://svelte.dev), [Vite](https://vite.dev) and
+[TypeScript](https://www.typescriptlang.org/), and uses [pnpm](https://pnpm.io/).
 
 ```bash
-# for local development
-npm install
-npm run dev
-// Or yarn dev
+# install dependencies
+pnpm install
 
-# for a production bundle
-npm install
-npm run build
-// Or yarn build
+# build and rebuild on change
+pnpm dev
 
-# change version
-npm bumpversion
-// Or yarn bumpversion
+# type-check and produce a production bundle (main.js + styles.css)
+pnpm build
+
+# lint
+pnpm lint
 ```
 
-# Stats
+### Releasing
 
-The production output of this sample plugin is ~10 KB.
+Bump the version (this runs `version-bump.mjs` to sync `manifest.json` and `versions.json`):
 
+```bash
+pnpm version patch   # or minor / major
+git push --follow-tags
 ```
-./styles.css   0.44 KiB / gzip: 0.19 KiB
-./main.js      12.63 KiB / gzip: 3.70 KiB
-```
 
-## API Documentation
+Pushing the tag triggers the GitHub Actions release workflow, which builds the plugin and
+attaches `main.js`, `manifest.json` and `styles.css` to a new GitHub release.
 
-See https://github.com/obsidianmd/obsidian-api
+## License
+
+[MIT](LICENSE)
