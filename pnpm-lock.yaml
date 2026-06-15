@@ -15,9 +15,6 @@ importers:
       '@cooklang/cooklang':
         specifier: ^0.18.7
         version: 0.18.7
-      '@cooklang/cooklang-ts':
-        specifier: ^1.2.8
-        version: 1.2.8
       '@eslint/js':
         specifier: ^10.0.1
         version: 10.0.1(eslint@10.5.0)
@@ -74,10 +71,6 @@ packages:
 
   '@codemirror/view@6.38.6':
     resolution: {integrity: sha512-qiS0z1bKs5WOvHIAC0Cybmv4AJSkAXgX5aD6Mqd2epSLlVJsQl8NG23jCVouIgkh4All/mrbdsf2UOLFnJw0tw==}
-
-  '@cooklang/cooklang-ts@1.2.8':
-    resolution: {integrity: sha512-8E5fFADxf43LN7RpuXwp/lI6PcB2Fa3hqh7C+NKH/S+B/hObJLaj82ASSgtAzrDhGcxdgrWNqkirxqv5ptN3yA==}
-    deprecated: 'This package is deprecated. Please use @cooklang/cooklang instead for better performance and active maintenance. Migration guide: https://github.com/cooklang/cooklang-rs/blob/main/typescript/MIGRATION.md'
 
   '@cooklang/cooklang@0.18.7':
     resolution: {integrity: sha512-wvPecy5NoKt28CUjkJdZmpg8onDct/qHjbINO0KfwBLO0M9uXNBlXlW0I6DKSY11ZNf/XTKqij35y/1uWmXy2w==}
@@ -1153,8 +1146,6 @@ snapshots:
       crelt: 1.0.6
       style-mod: 4.1.3
       w3c-keyname: 2.2.8
-
-  '@cooklang/cooklang-ts@1.2.8': {}
 
   '@cooklang/cooklang@0.18.7': {}
 

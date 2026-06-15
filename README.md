@@ -16,7 +16,6 @@ around them in the same note.
 
 - Renders ingredients, cookware, timers and step-by-step instructions from a `cooklang` block.
 - Built-in countdown timers for any `~{...}` timer in the recipe.
-- A shopping-list side panel — click ingredients to add them, click again to remove.
 
 ## Development
 
