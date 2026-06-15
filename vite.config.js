@@ -1,70 +1,45 @@
-import path from 'path';
+import path from 'node:path';
 import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
-import autoPreprocess from 'svelte-preprocess';
 import builtins from 'builtin-modules';
 
-const prod = (process.argv[2] === 'production');
+export default defineConfig(({ mode }) => {
+    const prod = mode === 'production';
 
-export default defineConfig(() => {
     return {
-        plugins: [
-            svelte({
-                preprocess: autoPreprocess()
-            })
-        ],
-        watch: !prod,
+        plugins: [svelte()],
         build: {
             sourcemap: prod ? false : 'inline',
             minify: prod,
-            // Use Vite lib mode https://vitejs.dev/guide/build.html#library-mode
-            commonjsOptions: {
-                ignoreTryCatch: false,
-            },
+            // Output straight into the plugin root so Obsidian picks it up.
+            outDir: '.',
+            emptyOutDir: false,
             lib: {
-                entry: path.resolve(__dirname, './src/starterIndex.ts'),
+                entry: path.resolve(__dirname, 'src/main.ts'),
                 formats: ['cjs'],
             },
-            css: {},
             rollupOptions: {
                 output: {
-                    // Overwrite default Vite output fileName
                     entryFileNames: 'main.js',
                     assetFileNames: 'styles.css',
                 },
-                external: ['obsidian',
+                external: [
+                    'obsidian',
                     'electron',
-                    "codemirror",
-                    "@codemirror/autocomplete",
-                    "@codemirror/closebrackets",
-                    "@codemirror/collab",
-                    "@codemirror/commands",
-                    "@codemirror/comment",
-                    "@codemirror/fold",
-                    "@codemirror/gutter",
-                    "@codemirror/highlight",
-                    "@codemirror/history",
-                    "@codemirror/language",
-                    "@codemirror/lint",
-                    "@codemirror/matchbrackets",
-                    "@codemirror/panel",
-                    "@codemirror/rangeset",
-                    "@codemirror/rectangular-selection",
-                    "@codemirror/search",
-                    "@codemirror/state",
-                    "@codemirror/stream-parser",
-                    "@codemirror/text",
-                    "@codemirror/tooltip",
-                    "@codemirror/view",
-                    "@lezer/common",
-                    "@lezer/lr",
-                    "@lezer/highlight",
+                    '@codemirror/autocomplete',
+                    '@codemirror/collab',
+                    '@codemirror/commands',
+                    '@codemirror/language',
+                    '@codemirror/lint',
+                    '@codemirror/search',
+                    '@codemirror/state',
+                    '@codemirror/view',
+                    '@lezer/common',
+                    '@lezer/highlight',
+                    '@lezer/lr',
                     ...builtins,
                 ],
             },
-            // Use root as the output dir
-            emptyOutDir: false,
-            outDir: '.',
         },
-    }
+    };
 });
