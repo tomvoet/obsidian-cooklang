@@ -21,6 +21,14 @@ export default defineConfig([
             '@stylistic/indent': ['error', INDENT],
             '@stylistic/eol-last': ['error', 'always'],
             '@stylistic/no-tabs': 'error',
+            '@stylistic/object-curly-spacing': ['error', 'always'],
+            '@stylistic/max-len': ['error', {
+                code: 100,
+                tabWidth: INDENT,
+                ignoreUrls: true,
+                ignoreRegExpLiterals: true,
+                ignoreComments: true,
+            }],
         },
     },
     {
