@@ -19,8 +19,9 @@ around them in the same note.
 
 ## Development
 
-This plugin is built with [Svelte 5](https://svelte.dev), [Vite](https://vite.dev) and
-[TypeScript](https://www.typescriptlang.org/), and uses [pnpm](https://pnpm.io/).
+This plugin is built with [Svelte 5](https://svelte.dev), [Vite](https://vite.dev),
+[Tailwind CSS](https://tailwindcss.com) and [TypeScript](https://www.typescriptlang.org/), and uses
+[pnpm](https://pnpm.io/).
 
 ```bash
 # install dependencies
@@ -29,7 +30,7 @@ pnpm install
 # build and rebuild on change
 pnpm dev
 
-# type-check and produce a production bundle (main.js + styles.css)
+# type-check and produce the production bundle (main.js, styles.css, cooklang wasm)
 pnpm build
 
 # lint (oxlint) and format (oxfmt)
@@ -47,7 +48,7 @@ git push --follow-tags
 ```
 
 Pushing the tag triggers the GitHub Actions release workflow, which builds the plugin and
-attaches `main.js`, `manifest.json` and `styles.css` to a new GitHub release.
+attaches `main.js`, `manifest.json`, `styles.css` and `cooklang_wasm_bg.wasm` to a new GitHub release.
 
 ## License
 
