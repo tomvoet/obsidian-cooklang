@@ -111,7 +111,7 @@
       {/if}
       {#if meta.length > 0}
         <div class="flex flex-wrap gap-1.5">
-          {#each meta as m (m.key)}
+          {#each meta as m, i (i)}
             <span class="rounded-full bg-(--background-secondary) px-2.5 py-0.5 text-sm">
               <span class="text-(--text-muted)">{m.key}</span>
               <span>{m.value}</span>
@@ -128,7 +128,7 @@
         <section>
           <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-(--text-muted)">Ingredients</div>
           <div role="list">
-            {#each ingredients as ingredient (ingredient.name)}
+            {#each ingredients as ingredient, i (i)}
               <div
                 role="listitem"
                 class="flex justify-between gap-3 border-b border-(--background-modifier-border) py-1 last:border-0"
@@ -146,7 +146,7 @@
         <section>
           <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-(--text-muted)">Cookware</div>
           <div role="list">
-            {#each cookware as item (item.name)}
+            {#each cookware as item, i (i)}
               <div
                 role="listitem"
                 class="flex justify-between gap-3 border-b border-(--background-modifier-border) py-1 last:border-0"
