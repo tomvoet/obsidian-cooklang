@@ -1,24 +1,34 @@
-<script lang="ts" type="module">
+<script lang="ts">
     import { onDestroy } from "svelte";
 
-    export let duration: number = 0;
-    duration *= 60;
+    let { duration = 0 }: { duration?: number } = $props();
 
-    let timer: number = 0;
-    let timerRunning: boolean = false;
+    const total = duration * 60;
 
-    let timerInterval: number;
+    let timer = $state(0);
+    let timerRunning = $state(false);
+    let timerInterval: ReturnType<typeof setInterval>;
 
     const startTimer = () => {
         timerRunning = true;
         timerInterval = setInterval(() => {
-            if (timer < duration) {
+            if (timer < total) {
                 timer++;
             } else {
                 clearInterval(timerInterval);
                 timerRunning = false;
             }
         }, 1000);
+    };
+
+    const pauseTimer = () => {
+        clearInterval(timerInterval);
+        timerRunning = false;
+    };
+
+    const resetTimer = () => {
+        pauseTimer();
+        timer = 0;
     };
 
     onDestroy(() => {
@@ -28,27 +38,14 @@
 
 <div class="cook-timer">
     <div class="cook-timer-time">
-        {duration - timer}
+        {total - timer}
     </div>
     <div class="cook-timer-controls">
         {#if timerRunning}
-            <button on:click={() => {
-                clearInterval(timerInterval);
-                timerRunning = false;
-            }}>
-                Pause
-            </button>
-            <button on:click={() => {
-                clearInterval(timerInterval);
-                timerRunning = false;
-                timer = 0;
-            }}>
-                Reset
-            </button>
+            <button onclick={pauseTimer}>Pause</button>
+            <button onclick={resetTimer}>Reset</button>
         {:else}
-            <button on:click={startTimer}>
-                Start
-            </button>
+            <button onclick={startTimer}>Start</button>
         {/if}
     </div>
 </div>

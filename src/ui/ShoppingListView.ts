@@ -1,11 +1,11 @@
 import { ItemView, WorkspaceLeaf } from "obsidian";
+import { mount, unmount } from "svelte";
 import ShoppingList from "./ShoppingList.svelte";
 
 export const VIEW_TYPE = "cook-shopping-list-view";
 
-
 export default class CookShoppingListView extends ItemView {
-  view: ShoppingList;
+  private component: ReturnType<typeof mount> | undefined;
 
   constructor(leaf: WorkspaceLeaf) {
     super(leaf);
@@ -16,7 +16,7 @@ export default class CookShoppingListView extends ItemView {
   }
 
   getDisplayText(): string {
-    return "Shopping List";
+    return "Shopping list";
   }
 
   getIcon(): string {
@@ -24,11 +24,12 @@ export default class CookShoppingListView extends ItemView {
   }
 
   async onOpen(): Promise<void> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    this.view = new ShoppingList({ target: (this as any).contentEl, props: {} });
+    this.component = mount(ShoppingList, { target: this.contentEl });
   }
 
   async onClose(): Promise<void> {
-    this.view.$destroy();
+    if (this.component) {
+      unmount(this.component);
+    }
   }
 }

@@ -1,7 +1,7 @@
 <script lang="ts">
     import store from "../store";
 
-    let {
+    const {
         shoppingList: { items, remove },
     } = store;
 </script>
@@ -9,8 +9,8 @@
 <div>
     <h2>Shopping List</h2>
     <ul>
-        {#each $items as ingredient}
-            <li on:click={() => remove(ingredient)}>
+        {#each $items as ingredient, i (i)}
+            <li onclick={() => remove(ingredient)}>
                 {ingredient.quantity}
                 {ingredient.units}
                 {ingredient.name}

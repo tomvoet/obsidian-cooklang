@@ -1,5 +1,5 @@
 import { writable } from "svelte/store";
-import type CookPlugin from "./starterIndex";
+import type CookPlugin from "./main";
 import type { Ingredient } from "@cooklang/cooklang-ts";
 
 const plugin = writable<CookPlugin>();

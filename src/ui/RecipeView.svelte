@@ -2,19 +2,20 @@
     import {
         Recipe,
         type Ingredient,
-        type Step,
         type Cookware,
         type Timer,
     } from "@cooklang/cooklang-ts";
 
-    import type CookPlugin from "src/starterIndex";
     import store from "../store";
-    //@ts-ignore
     import TimerComponent from "./components/Timer.svelte";
 
-    export let source: string;
+    let { source }: { source: string } = $props();
 
-    let recipe: Recipe = new Recipe(source);
+    const {
+        shoppingList: { add: addIngredient },
+    } = store;
+
+    const recipe: Recipe = new Recipe(source);
 
     const clean_ingredients: Ingredient[] = recipe.ingredients
         .reduce((acc, ingredient) => {
@@ -32,7 +33,7 @@
         .sort((a, b) => a.name.localeCompare(b.name));
 
     const clean_cookwares: Cookware[] = recipe.cookwares.sort((a, b) =>
-        a.name.localeCompare(b.name)
+        a.name.localeCompare(b.name),
     );
 
     const timers: Timer[] = [];
@@ -44,16 +45,6 @@
             }
         });
     });
-
-    let {
-        plugin,
-        shoppingList: { add: addIngredient },
-    } = store;
-
-    let cookPlugin: CookPlugin;
-    plugin.subscribe((plugin) => {
-        cookPlugin = plugin;
-    });
 </script>
 
 <div class="cook-wrapper">
@@ -61,14 +52,14 @@
         <table>
             <thead>
                 <tr>
-                    {#each Object.keys(recipe.metadata) as field}
+                    {#each Object.keys(recipe.metadata) as field (field)}
                         <th>{field}</th>
                     {/each}
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    {#each Object.values(recipe.metadata) as value}
+                    {#each Object.values(recipe.metadata) as value, i (i)}
                         <td>{value}</td>
                     {/each}
                 </tr>
@@ -78,8 +69,8 @@
     {#if clean_ingredients.length > 0}
         <h2>Ingredients</h2>
         <ul class="cook-requirements-wrapper">
-            {#each clean_ingredients as ingredient}
-                <li on:click={() => addIngredient(ingredient)}>
+            {#each clean_ingredients as ingredient (ingredient.name)}
+                <li onclick={() => addIngredient(ingredient)}>
                     {ingredient.quantity}
                     {ingredient.units}
                     {ingredient.name}
@@ -90,7 +81,7 @@
     {#if clean_cookwares.length > 0}
         <h2>Cookware</h2>
         <ul class="cook-requirements-wrapper">
-            {#each clean_cookwares as cookware}
+            {#each clean_cookwares as cookware (cookware.name)}
                 <li>{cookware.name}</li>
             {/each}
         </ul>
@@ -98,17 +89,17 @@
     {#if timers.length > 0}
         <h2>Timers</h2>
         <ul class="cook-requirements-wrapper">
-            {#each timers as timer}
+            {#each timers as timer, i (i)}
                 <li>
-                    <TimerComponent bind:duration={timer.quantity} />
+                    <TimerComponent duration={Number(timer.quantity)} />
                 </li>
             {/each}
         </ul>
     {/if}
     <h2>Instructions</h2>
-    {#each recipe.steps as step, i}
+    {#each recipe.steps as step, i (i)}
         <h3>Step {i + 1}</h3>
-        {#each step as substep}
+        {#each step as substep, j (j)}
             {#if substep.type === "text"}
                 {substep.value}
             {:else}
