@@ -131,7 +131,7 @@
             {#if item.type === "text"}
               {item.value}
             {:else}
-              <span class="cook-highlighted-text">{itemText(item)}</span>
+              <span class="bg-zinc-500/20 rounded-sm px-px">{itemText(item)}</span>
             {/if}
           {/each}
         </p>
@@ -146,11 +146,5 @@
   .cook-requirements-wrapper {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 3fr));
-  }
-
-  .cook-highlighted-text {
-    background-color: #f5f5f509;
-    padding: 0.05rem;
-    border-radius: 0.25rem;
   }
 </style>

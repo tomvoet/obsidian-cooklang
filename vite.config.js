@@ -2,10 +2,10 @@ import path from 'node:path';
 import { copyFileSync } from 'node:fs';
 import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
+import tailwindcss from '@tailwindcss/vite';
 import builtins from 'builtin-modules';
 
-// The cooklang WASM is instantiated at runtime from the plugin folder rather
-// than bundled (see src/cooklang.ts), so copy it next to main.js after each build.
+// Copy the runtime-loaded cooklang WASM next to main.js after each build.
 function copyCooklangWasm() {
     return {
         name: 'copy-cooklang-wasm',
@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => {
     const prod = mode === 'production';
 
     return {
-        plugins: [svelte(), copyCooklangWasm()],
+        plugins: [svelte(), tailwindcss(), copyCooklangWasm()],
         build: {
             sourcemap: prod ? false : 'inline',
             minify: prod,

@@ -4,6 +4,8 @@ import { mount } from 'svelte';
 import RecipeView from './ui/RecipeView.svelte';
 import { initCooklang } from './cooklang';
 
+import './app.css';
+
 const WASM_FILE = 'cooklang_wasm_bg.wasm';
 
 export default class CookPlugin extends Plugin {
