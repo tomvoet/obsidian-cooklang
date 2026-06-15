@@ -1,9 +1,20 @@
-import { App, Platform, Plugin, PluginSettingTab, Setting, WorkspaceLeaf } from 'obsidian';
+import {
+  App,
+  normalizePath,
+  Platform,
+  Plugin,
+  PluginSettingTab,
+  Setting,
+  WorkspaceLeaf,
+} from 'obsidian';
 import { mount } from 'svelte';
 
 import RecipeView from './ui/RecipeView.svelte';
 import CookShoppingListView, { VIEW_TYPE } from './ui/ShoppingListView';
+import { initCooklang } from './cooklang';
 import store from './store';
+
+const WASM_FILE = 'cooklang_wasm_bg.wasm';
 
 interface CookPluginSettings {
   shoppingListRibbonIcon: boolean;
@@ -19,6 +30,8 @@ export default class CookPlugin extends Plugin {
 
   async onload() {
     await this.loadSettings();
+
+    await this.loadCooklangWasm();
 
     store.plugin.set(this);
 
@@ -46,6 +59,15 @@ export default class CookPlugin extends Plugin {
     });
 
     this.addSettingTab(new CookSettingTab(this.app, this));
+  }
+
+  async loadCooklangWasm(): Promise<void> {
+    if (!this.manifest.dir) {
+      throw new Error('Cooklang: cannot locate the plugin directory to load the WASM parser.');
+    }
+    const wasmPath = normalizePath(`${this.manifest.dir}/${WASM_FILE}`);
+    const wasmBytes = await this.app.vault.adapter.readBinary(wasmPath);
+    await initCooklang(wasmBytes);
   }
 
   onLayoutReady(): void {
@@ -95,7 +117,7 @@ class CookSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName('Shopping list ribbon icon')
-      .setDesc('When enabled, a shopping list icon appears in the left ribbon. Takes effect after a reload.')
+      .setDesc('Show a shopping list icon in the left ribbon (needs a reload).')
       .addToggle((toggle) =>
         toggle
           .setValue(this.plugin.settings.shoppingListRibbonIcon)

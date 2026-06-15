@@ -9,6 +9,7 @@ node_modules
 # build output (shipped via GitHub releases, not committed)
 main.js
 styles.css
+cooklang_wasm_bg.wasm
 *.map
 
 # obsidian

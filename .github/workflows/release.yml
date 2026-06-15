@@ -38,4 +38,4 @@ jobs:
           gh release create "$TAG" \
             --title="$TAG" \
             --generate-notes \
-            main.js manifest.json styles.css
+            main.js manifest.json styles.css cooklang_wasm_bg.wasm

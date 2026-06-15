@@ -1,148 +1,156 @@
 <script lang="ts">
-    import {
-        Recipe,
-        type Ingredient,
-        type Cookware,
-        type Timer,
-    } from "@cooklang/cooklang-ts";
+  import {
+    Parser,
+    grouped_quantity_display,
+    ingredient_display_name,
+    cookware_display_name,
+    quantity_display,
+    timerSeconds,
+    type Item,
+  } from "../cooklang";
+  import TimerComponent from "./components/Timer.svelte";
+  import { upperFirst } from "scule";
 
-    import store from "../store";
-    import TimerComponent from "./components/Timer.svelte";
+  let { source }: { source: string } = $props();
 
-    let { source }: { source: string } = $props();
+  const parser = new Parser();
+  const parsed = $derived.by(() => parser.parse(source));
 
-    const {
-        shoppingList: { add: addIngredient },
-    } = store;
+  const ingredients = $derived.by(() =>
+    parser.group_ingredients(parsed).map(({ index, quantity }) => ({
+      name: ingredient_display_name(parsed.recipe.ingredients[index]),
+      display: grouped_quantity_display(quantity),
+    })),
+  );
 
-    const recipe: Recipe = $derived(new Recipe(source));
+  const cookware = $derived.by(() =>
+    parser.group_cookware(parsed).map(({ index, quantity }) => ({
+      name: cookware_display_name(parsed.recipe.cookware[index]),
+      display: grouped_quantity_display(quantity),
+    })),
+  );
 
-    const clean_ingredients: Ingredient[] = $derived(
-        recipe.ingredients
-            .reduce((acc, ingredient) => {
-                const existing = acc.find((i) => i.name === ingredient.name);
+  const timers = $derived.by(() =>
+    parsed.recipe.timers.map((timer) => ({
+      name: timer.name,
+      seconds: timerSeconds(timer.quantity),
+    })),
+  );
 
-                if (existing && existing.units === ingredient.units) {
-                    existing.quantity =
-                        Number(existing.quantity) + Number(ingredient.quantity);
-                } else {
-                    acc.push(ingredient);
-                }
+  const metaData = $derived.by(
+    () => [
+      ...Object.entries(parsed.metadata).filter(([key, _]) => key !== "custom"),
+      ...Object.entries(parsed.metadata.custom),
+    ]
+      .filter(([_, value]) => !!value)
+      .map(([key, value]) => ({ key: upperFirst(key), value })),
+  );
 
-                return acc;
-            }, [] as Ingredient[])
-            .sort((a, b) => a.name.localeCompare(b.name)),
-    );
-
-    const clean_cookwares: Cookware[] = $derived(
-        recipe.cookwares.sort((a, b) => a.name.localeCompare(b.name)),
-    );
-
-    const timers: Timer[] = $derived.by(() => {
-        const found: Timer[] = [];
-        recipe.steps.forEach((step) => {
-            step.forEach((substep) => {
-                if (substep.type === "timer") {
-                    found.push(substep);
-                }
-            });
-        });
-        return found;
-    });
+  // Step items reference ingredients/cookware/timers by index into the recipe.
+  function itemText(item: Item): string {
+    switch (item.type) {
+      case "ingredient": {
+        const ing = parsed.recipe.ingredients[item.index];
+        const qty = ing.quantity ? quantity_display(ing.quantity) : "";
+        return `${qty} ${ingredient_display_name(ing)}`.trim();
+      }
+      case "cookware": {
+        const cw = parsed.recipe.cookware[item.index];
+        const qty = cw.quantity ? quantity_display(cw.quantity) : "";
+        return `${qty} ${cookware_display_name(cw)}`.trim();
+      }
+      case "timer": {
+        const t = parsed.recipe.timers[item.index];
+        const qty = t.quantity ? quantity_display(t.quantity) : "";
+        return `${t.name ?? ""} ${qty}`.trim();
+      }
+      case "inlineQuantity":
+        return quantity_display(parsed.recipe.inline_quantities[item.index]);
+      default:
+        return "";
+    }
+  }
 </script>
 
 <div class="cook-wrapper">
-    {#if Object.keys(recipe.metadata).length > 0}
-        <table>
-            <thead>
-                <tr>
-                    {#each Object.keys(recipe.metadata) as field (field)}
-                        <th>{field}</th>
-                    {/each}
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    {#each Object.values(recipe.metadata) as value, i (i)}
-                        <td>{value}</td>
-                    {/each}
-                </tr>
-            </tbody>
-        </table>
+  {#if Object.keys(parsed.metadata).length > 0}
+    <table>
+      <thead>
+        <tr>
+          {#each metaData as { key } (key)}
+            <th>{key}</th>
+          {/each}
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          {#each metaData as { value }, i (i)}
+            <td>{value}</td>
+          {/each}
+        </tr>
+      </tbody>
+    </table>
+  {/if}
+  {#if ingredients.length > 0}
+    <h2>Ingredients</h2>
+    <ul class="cook-requirements-wrapper">
+      {#each ingredients as ingredient (ingredient.name)}
+        <li>{ingredient.display} {ingredient.name}</li>
+      {/each}
+    </ul>
+  {/if}
+  {#if cookware.length > 0}
+    <h2>Cookware</h2>
+    <ul class="cook-requirements-wrapper">
+      {#each cookware as item (item.name)}
+        <li>{item.display} {item.name}</li>
+      {/each}
+    </ul>
+  {/if}
+  {#if timers.length > 0}
+    <h2>Timers</h2>
+    <ul class="cook-requirements-wrapper">
+      {#each timers as timer, i (i)}
+        <li>
+          {#if timer.name}<span class="cook-timer-name">{timer.name}</span>{/if}
+          <TimerComponent seconds={timer.seconds} />
+        </li>
+      {/each}
+    </ul>
+  {/if}
+  <h2>Instructions</h2>
+  {#each parsed.recipe.sections as section, s (s)}
+    {#if section.name}
+      <h3>{section.name}</h3>
     {/if}
-    {#if clean_ingredients.length > 0}
-        <h2>Ingredients</h2>
-        <ul class="cook-requirements-wrapper">
-            {#each clean_ingredients as ingredient (ingredient.name)}
-                <li>
-                    <button
-                        type="button"
-                        class="cook-list-item"
-                        onclick={() => addIngredient(ingredient)}
-                    >
-                        {ingredient.quantity}
-                        {ingredient.units}
-                        {ingredient.name}
-                    </button>
-                </li>
-            {/each}
-        </ul>
-    {/if}
-    {#if clean_cookwares.length > 0}
-        <h2>Cookware</h2>
-        <ul class="cook-requirements-wrapper">
-            {#each clean_cookwares as cookware (cookware.name)}
-                <li>{cookware.name}</li>
-            {/each}
-        </ul>
-    {/if}
-    {#if timers.length > 0}
-        <h2>Timers</h2>
-        <ul class="cook-requirements-wrapper">
-            {#each timers as timer, i (i)}
-                <li>
-                    <TimerComponent duration={Number(timer.quantity)} />
-                </li>
-            {/each}
-        </ul>
-    {/if}
-    <h2>Instructions</h2>
-    {#each recipe.steps as step, i (i)}
-        <h3>Step {i + 1}</h3>
-        {#each step as substep, j (j)}
-            {#if substep.type === "text"}
-                {substep.value}
+    {#each section.content as content, c (c)}
+      {#if content.type === "step"}
+        <h3>Step {content.value.number}</h3>
+        <p>
+          {#each content.value.items as item, k (k)}
+            {#if item.type === "text"}
+              {item.value}
             {:else}
-                <span class="cook-highlighted-text">
-                    {substep.quantity}
-                    {substep.type === "cookware" ? "" : substep.units}
-                    {substep.name}
-                </span>
+              <span class="cook-highlighted-text">{itemText(item)}</span>
             {/if}
-        {/each}
+          {/each}
+        </p>
+      {:else}
+        <p>{content.value}</p>
+      {/if}
     {/each}
+  {/each}
 </div>
 
 <style>
-    .cook-requirements-wrapper {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 3fr));
-    }
+  .cook-requirements-wrapper {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 3fr));
+  }
 
-    .cook-highlighted-text {
-        background-color: #f5f5f509;
-        padding: 0.05rem;
-        border-radius: 0.25rem;
-    }
-
-    .cook-list-item {
-        width: 100%;
-        padding: 0;
-        font: inherit;
-        color: inherit;
-        text-align: left;
-        background: none;
-        border: none;
-        cursor: pointer;
-    }
+  .cook-highlighted-text {
+    background-color: #f5f5f509;
+    padding: 0.05rem;
+    border-radius: 0.25rem;
+  }
 </style>
