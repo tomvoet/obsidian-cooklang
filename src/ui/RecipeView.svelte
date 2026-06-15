@@ -37,14 +37,29 @@
     })),
   );
 
-  const metaData = $derived.by(
-    () => [
-      ...Object.entries(parsed.metadata).filter(([key, _]) => key !== "custom"),
-      ...Object.entries(parsed.metadata.custom),
+  const title = $derived(parsed.metadata.title);
+  const description = $derived(parsed.metadata.description);
+
+  const SKIP_META = new Set(["title", "description", "custom", "images", "locale"]);
+
+  const meta = $derived.by(() =>
+    [
+      ...Object.entries(parsed.metadata).filter(([key]) => !SKIP_META.has(key)),
+      ...Object.entries(parsed.metadata.custom ?? {}),
     ]
-      .filter(([_, value]) => !!value)
-      .map(([key, value]) => ({ key: upperFirst(key), value })),
+      .map(([key, value]) => ({ key: upperFirst(key), value: formatMeta(value) }))
+      .filter(({ value }) => value !== ""),
   );
+
+  function formatMeta(value: unknown): string {
+    if (value == null) return "";
+    if (Array.isArray(value)) return value.join(", ");
+    if (typeof value === "object") {
+      const name = (value as Record<string, unknown>).name;
+      return typeof name === "string" ? name : "";
+    }
+    return String(value);
+  }
 
   // Step items reference ingredients/cookware/timers by index into the recipe.
   function itemText(item: Item): string {
@@ -70,74 +85,129 @@
         return "";
     }
   }
+
+  function tokenClass(type: Item["type"]): string {
+    switch (type) {
+      case "cookware":
+        return "rounded-[var(--radius-s)] px-1 py-0.5 font-medium text-[var(--text-normal)] bg-[var(--background-modifier-hover)]";
+      case "timer":
+        return "rounded-[var(--radius-s)] px-1 py-0.5 font-medium text-[var(--text-normal)] bg-[var(--background-modifier-hover)] [font-family:var(--font-monospace)]";
+      default:
+        return "rounded-[var(--radius-s)] px-1 py-0.5 font-medium text-[var(--text-accent)] bg-[color-mix(in_srgb,var(--text-accent)_12%,transparent)]";
+    }
+  }
 </script>
 
-<div class="cook-wrapper">
-  {#if Object.keys(parsed.metadata).length > 0}
-    <table>
-      <thead>
-        <tr>
-          {#each metaData as { key } (key)}
-            <th>{key}</th>
-          {/each}
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          {#each metaData as { value }, i (i)}
-            <td>{value}</td>
-          {/each}
-        </tr>
-      </tbody>
-    </table>
-  {/if}
-  {#if ingredients.length > 0}
-    <h2>Ingredients</h2>
-    <ul class="grid grid-cols-[repeat(auto-fit,minmax(300px,3fr))]">
-      {#each ingredients as ingredient (ingredient.name)}
-        <li>{ingredient.display} {ingredient.name}</li>
-      {/each}
-    </ul>
-  {/if}
-  {#if cookware.length > 0}
-    <h2>Cookware</h2>
-    <ul class="grid grid-cols-[repeat(auto-fit,minmax(300px,3fr))]">
-      {#each cookware as item (item.name)}
-        <li>{item.display} {item.name}</li>
-      {/each}
-    </ul>
-  {/if}
-  {#if timers.length > 0}
-    <h2>Timers</h2>
-    <ul class="grid grid-cols-[repeat(auto-fit,minmax(300px,3fr))]">
-      {#each timers as timer, i (i)}
-        <li>
-          {#if timer.name}<span class="mr-2">{timer.name}</span>{/if}
-          <TimerComponent seconds={timer.seconds} />
-        </li>
-      {/each}
-    </ul>
-  {/if}
-  <h2>Instructions</h2>
-  {#each parsed.recipe.sections as section, s (s)}
-    {#if section.name}
-      <h3>{section.name}</h3>
-    {/if}
-    {#each section.content as content, c (c)}
-      {#if content.type === "step"}
-        <h3>Step {content.value.number}</h3>
-        <p>
-          {#each content.value.items as item, k (k)}
-            {#if item.type === "text"}
-              {item.value}
-            {:else}
-              <span class="bg-zinc-500/20 rounded-sm px-px">{itemText(item)}</span>
-            {/if}
-          {/each}
-        </p>
-      {:else}
-        <p>{content.value}</p>
+<article
+  class="cook-recipe flex flex-col gap-5 rounded-[var(--radius-l)] border border-[var(--background-modifier-border)] p-5 text-[var(--text-normal)]"
+>
+  {#if title || description || meta.length > 0}
+    <header class="flex flex-col gap-2">
+      {#if title}
+        <div class="text-2xl font-semibold leading-tight">{title}</div>
       {/if}
+      {#if description}
+        <div class="text-[var(--text-muted)]">{description}</div>
+      {/if}
+      {#if meta.length > 0}
+        <div class="flex flex-wrap gap-1.5">
+          {#each meta as m (m.key)}
+            <span class="rounded-full bg-[var(--background-secondary)] px-2.5 py-0.5 text-sm">
+              <span class="text-[var(--text-muted)]">{m.key}</span>
+              <span>{m.value}</span>
+            </span>
+          {/each}
+        </div>
+      {/if}
+    </header>
+  {/if}
+
+  {#if ingredients.length > 0 || cookware.length > 0}
+    <div class="grid gap-x-8 gap-y-5 border-t border-[var(--background-modifier-border)] pt-5 sm:grid-cols-2">
+      {#if ingredients.length > 0}
+        <section>
+          <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Ingredients</div>
+          <div role="list">
+            {#each ingredients as ingredient (ingredient.name)}
+              <div
+                role="listitem"
+                class="flex justify-between gap-3 border-b border-[var(--background-modifier-border)] py-1 last:border-0"
+              >
+                <span>{ingredient.name}</span>
+                {#if ingredient.display}
+                  <span class="shrink-0 font-medium tabular-nums text-[var(--text-accent)]">{ingredient.display}</span>
+                {/if}
+              </div>
+            {/each}
+          </div>
+        </section>
+      {/if}
+      {#if cookware.length > 0}
+        <section>
+          <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Cookware</div>
+          <div role="list">
+            {#each cookware as item (item.name)}
+              <div
+                role="listitem"
+                class="flex justify-between gap-3 border-b border-[var(--background-modifier-border)] py-1 last:border-0"
+              >
+                <span>{item.name}</span>
+                {#if item.display}
+                  <span class="shrink-0 font-medium tabular-nums text-[var(--text-muted)]">{item.display}</span>
+                {/if}
+              </div>
+            {/each}
+          </div>
+        </section>
+      {/if}
+    </div>
+  {/if}
+
+  {#if timers.length > 0}
+    <section class="border-t border-[var(--background-modifier-border)] pt-5">
+      <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Timers</div>
+      <div class="flex flex-wrap gap-2">
+        {#each timers as timer, i (i)}
+          <div class="flex items-center gap-2 rounded-[var(--radius-m)] border border-[var(--background-modifier-border)] px-3 py-1.5">
+            {#if timer.name}<span class="text-sm text-[var(--text-muted)]">{timer.name}</span>{/if}
+            <TimerComponent seconds={timer.seconds} />
+          </div>
+        {/each}
+      </div>
+    </section>
+  {/if}
+
+  <section class="border-t border-[var(--background-modifier-border)] pt-5">
+    <div class="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Method</div>
+    {#each parsed.recipe.sections as section, s (s)}
+      {#if section.name}
+        <div class="mb-2 mt-4 font-semibold">{section.name}</div>
+      {/if}
+      <div role="list">
+        {#each section.content as content, c (c)}
+          {#if content.type === "step"}
+            <div
+              role="listitem"
+              class="relative pb-5 pl-9 leading-relaxed last:pb-0 before:absolute before:left-3 before:top-7 before:bottom-0 before:w-px before:bg-[var(--background-modifier-border)] before:content-[''] last:before:hidden"
+            >
+              <span
+                class="absolute left-0 top-0 flex size-6 items-center justify-center rounded-full bg-[var(--interactive-accent)] text-xs font-semibold text-[var(--text-on-accent)]"
+              >{content.value.number}</span>
+              <div>
+                {#each content.value.items as item, k (k)}
+                  {#if item.type === "text"}
+                    {item.value}
+                  {:else}
+                    <span class={tokenClass(item.type)}>{itemText(item)}</span>
+                  {/if}
+                {/each}
+              </div>
+            </div>
+          {:else}
+            <div class="py-1 italic text-[var(--text-muted)]">{content.value}</div>
+          {/if}
+        {/each}
+      </div>
     {/each}
-  {/each}
-</div>
+  </section>
+</article>

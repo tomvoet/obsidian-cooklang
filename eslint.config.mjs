@@ -43,6 +43,8 @@ export default defineConfig([
         rules: {
             '@stylistic/indent': 'off',
             'svelte/indent': ['error', { indent: INDENT }],
+            // Tailwind utility class strings make line-length impractical in markup.
+            '@stylistic/max-len': 'off',
         },
     },
     {

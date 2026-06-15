@@ -1,49 +1,56 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
+  import { intervalToDuration } from "date-fns";
 
   let { seconds = 0 }: { seconds?: number } = $props();
 
-  let timer = $state(0);
-  let timerRunning = $state(false);
-  let timerInterval: ReturnType<typeof setInterval>;
+  let elapsed = $state(0);
+  let running = $state(false);
+  let interval: ReturnType<typeof setInterval>;
 
-  const startTimer = () => {
-    timerRunning = true;
-    timerInterval = setInterval(() => {
-      if (timer < seconds) {
-        timer++;
+  const remaining = $derived(Math.max(0, seconds - elapsed));
+  const label = $derived(format(remaining));
+
+  function format(total: number): string {
+    const { hours = 0, minutes = 0, seconds: secs = 0 } = intervalToDuration({
+      start: 0,
+      end: total * 1000,
+    });
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return hours > 0 ? `${hours}:${pad(minutes)}:${pad(secs)}` : `${minutes}:${pad(secs)}`;
+  }
+
+  const start = () => {
+    running = true;
+    interval = setInterval(() => {
+      if (elapsed < seconds) {
+        elapsed++;
       } else {
-        clearInterval(timerInterval);
-        timerRunning = false;
+        clearInterval(interval);
+        running = false;
       }
     }, 1000);
   };
 
-  const pauseTimer = () => {
-    clearInterval(timerInterval);
-    timerRunning = false;
+  const pause = () => {
+    clearInterval(interval);
+    running = false;
   };
 
-  const resetTimer = () => {
-    pauseTimer();
-    timer = 0;
+  const reset = () => {
+    pause();
+    elapsed = 0;
   };
 
-  onDestroy(() => {
-    clearInterval(timerInterval);
-  });
+  onDestroy(() => clearInterval(interval));
 </script>
 
-<div class="flex w-max items-center justify-center rounded-[5px] p-2.5">
-  <div class="text-2xl">
-    {seconds - timer}
-  </div>
-  <div class="flex items-center justify-center">
-    {#if timerRunning}
-      <button class="ml-2.5" onclick={pauseTimer}>Pause</button>
-      <button class="ml-2.5" onclick={resetTimer}>Reset</button>
-    {:else}
-      <button class="ml-2.5" onclick={startTimer}>Start</button>
-    {/if}
-  </div>
-</div>
+<span class="inline-flex items-center gap-2">
+  <span class="tabular-nums text-[var(--text-accent)] [font-family:var(--font-monospace)]">{label}</span>
+  {#if running}
+    <button onclick={pause}>Pause</button>
+    <button onclick={reset}>Reset</button>
+  {:else}
+    <button onclick={start}>Start</button>
+  {/if}
+</span>
