@@ -46,7 +46,7 @@
 </script>
 
 <span class="inline-flex items-center gap-2">
-  <span class="tabular-nums text-[var(--text-accent)] [font-family:var(--font-monospace)]">{label}</span>
+  <span class="tabular-nums text-(--text-accent) [font-family:var(--font-monospace)]">{label}</span>
   {#if running}
     <button onclick={pause}>Pause</button>
     <button onclick={reset}>Reset</button>

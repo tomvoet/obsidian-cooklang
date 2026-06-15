@@ -99,7 +99,7 @@
 </script>
 
 <article
-  class="cook-recipe flex flex-col gap-5 rounded-[var(--radius-l)] border border-[var(--background-modifier-border)] p-5 text-[var(--text-normal)]"
+  class="cook-recipe flex flex-col gap-5 rounded-(--radius-l) border border-(--background-modifier-border) p-5 text-(--text-normal)"
 >
   {#if title || description || meta.length > 0}
     <header class="flex flex-col gap-2">
@@ -107,13 +107,13 @@
         <div class="text-2xl font-semibold leading-tight">{title}</div>
       {/if}
       {#if description}
-        <div class="text-[var(--text-muted)]">{description}</div>
+        <div class="text-(--text-muted)">{description}</div>
       {/if}
       {#if meta.length > 0}
         <div class="flex flex-wrap gap-1.5">
           {#each meta as m (m.key)}
-            <span class="rounded-full bg-[var(--background-secondary)] px-2.5 py-0.5 text-sm">
-              <span class="text-[var(--text-muted)]">{m.key}</span>
+            <span class="rounded-full bg-(--background-secondary) px-2.5 py-0.5 text-sm">
+              <span class="text-(--text-muted)">{m.key}</span>
               <span>{m.value}</span>
             </span>
           {/each}
@@ -123,19 +123,19 @@
   {/if}
 
   {#if ingredients.length > 0 || cookware.length > 0}
-    <div class="grid gap-x-8 gap-y-5 border-t border-[var(--background-modifier-border)] pt-5 sm:grid-cols-2">
+    <div class="grid gap-x-8 gap-y-5 border-t border-(--background-modifier-border) pt-5 sm:grid-cols-2">
       {#if ingredients.length > 0}
         <section>
-          <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Ingredients</div>
+          <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-(--text-muted)">Ingredients</div>
           <div role="list">
             {#each ingredients as ingredient (ingredient.name)}
               <div
                 role="listitem"
-                class="flex justify-between gap-3 border-b border-[var(--background-modifier-border)] py-1 last:border-0"
+                class="flex justify-between gap-3 border-b border-(--background-modifier-border) py-1 last:border-0"
               >
                 <span>{ingredient.name}</span>
                 {#if ingredient.display}
-                  <span class="shrink-0 font-medium tabular-nums text-[var(--text-accent)]">{ingredient.display}</span>
+                  <span class="shrink-0 font-medium tabular-nums text-(--text-accent)">{ingredient.display}</span>
                 {/if}
               </div>
             {/each}
@@ -144,16 +144,16 @@
       {/if}
       {#if cookware.length > 0}
         <section>
-          <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Cookware</div>
+          <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-(--text-muted)">Cookware</div>
           <div role="list">
             {#each cookware as item (item.name)}
               <div
                 role="listitem"
-                class="flex justify-between gap-3 border-b border-[var(--background-modifier-border)] py-1 last:border-0"
+                class="flex justify-between gap-3 border-b border-(--background-modifier-border) py-1 last:border-0"
               >
                 <span>{item.name}</span>
                 {#if item.display}
-                  <span class="shrink-0 font-medium tabular-nums text-[var(--text-muted)]">{item.display}</span>
+                  <span class="shrink-0 font-medium tabular-nums text-(--text-muted)">{item.display}</span>
                 {/if}
               </div>
             {/each}
@@ -164,12 +164,12 @@
   {/if}
 
   {#if timers.length > 0}
-    <section class="border-t border-[var(--background-modifier-border)] pt-5">
-      <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Timers</div>
+    <section class="border-t border-(--background-modifier-border) pt-5">
+      <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-(--text-muted)">Timers</div>
       <div class="flex flex-wrap gap-2">
         {#each timers as timer, i (i)}
-          <div class="flex items-center gap-2 rounded-[var(--radius-m)] border border-[var(--background-modifier-border)] px-3 py-1.5">
-            {#if timer.name}<span class="text-sm text-[var(--text-muted)]">{timer.name}</span>{/if}
+          <div class="flex items-center gap-2 rounded-(--radius-m) border border-(--background-modifier-border) px-3 py-1.5">
+            {#if timer.name}<span class="text-sm text-(--text-muted)">{timer.name}</span>{/if}
             <TimerComponent seconds={timer.seconds} />
           </div>
         {/each}
@@ -177,8 +177,8 @@
     </section>
   {/if}
 
-  <section class="border-t border-[var(--background-modifier-border)] pt-5">
-    <div class="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--text-muted)]">Method</div>
+  <section class="border-t border-(--background-modifier-border) pt-5">
+    <div class="mb-3 text-xs font-semibold uppercase tracking-wider text-(--text-muted)">Method</div>
     {#each parsed.recipe.sections as section, s (s)}
       {#if section.name}
         <div class="mb-2 mt-4 font-semibold">{section.name}</div>
@@ -188,10 +188,10 @@
           {#if content.type === "step"}
             <div
               role="listitem"
-              class="relative pb-5 pl-9 leading-relaxed last:pb-0 before:absolute before:left-3 before:top-7 before:bottom-0 before:w-px before:bg-[var(--background-modifier-border)] before:content-[''] last:before:hidden"
+              class="relative pb-5 pl-9 leading-relaxed last:pb-0 before:absolute before:left-3 before:top-7 before:bottom-0 before:w-px before:bg-(--background-modifier-border) before:content-[''] last:before:hidden"
             >
               <span
-                class="absolute left-0 top-0 flex size-6 items-center justify-center rounded-full bg-[var(--interactive-accent)] text-xs font-semibold text-[var(--text-on-accent)]"
+                class="absolute left-0 top-0 flex size-6 items-center justify-center rounded-full bg-(--interactive-accent) text-xs font-semibold text-(--text-on-accent)"
               >{content.value.number}</span>
               <div>
                 {#each content.value.items as item, k (k)}
@@ -204,7 +204,7 @@
               </div>
             </div>
           {:else}
-            <div class="py-1 italic text-[var(--text-muted)]">{content.value}</div>
+            <div class="py-1 italic text-(--text-muted)">{content.value}</div>
           {/if}
         {/each}
       </div>
