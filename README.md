@@ -3,11 +3,11 @@
 Render [Cooklang](https://cooklang.org/) recipes inside Obsidian. Write a recipe in a
 `cooklang` code block and the plugin renders the ingredients, cookware, timers and steps.
 
-~~~markdown
+````markdown
 ```cooklang
 Place @toast{1} on a #plate{} and put @mayonnaise{1%tbsp} on it.
 ```
-~~~
+````
 
 Keeping recipes in separate code blocks means you can still add tags, metadata and prose
 around them in the same note.
@@ -32,8 +32,9 @@ pnpm dev
 # type-check and produce a production bundle (main.js + styles.css)
 pnpm build
 
-# lint
+# lint (oxlint) and format (oxfmt)
 pnpm lint
+pnpm format
 ```
 
 ### Releasing
