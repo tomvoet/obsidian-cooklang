@@ -2,7 +2,10 @@ import { defineConfig, globalIgnores } from 'eslint/config';
 import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import svelte from 'eslint-plugin-svelte';
+import stylistic from '@stylistic/eslint-plugin';
 import globals from 'globals';
+
+const INDENT = 2;
 
 export default defineConfig([
     globalIgnores(['main.js', 'styles.css', 'node_modules/', '*.config.*', 'version-bump.mjs']),
@@ -10,16 +13,28 @@ export default defineConfig([
     tseslint.configs.recommended,
     svelte.configs.recommended,
     {
+        plugins: { '@stylistic': stylistic },
         languageOptions: {
             globals: { ...globals.node, ...globals.browser },
         },
+        rules: {
+            '@stylistic/indent': ['error', INDENT],
+            '@stylistic/eol-last': ['error', 'always'],
+            '@stylistic/no-tabs': 'error',
+        },
     },
     {
+        // The svelte parser needs a dedicated indentation rule; @stylistic/indent
+        // does not understand the template AST, so defer to svelte/indent there.
         files: ['**/*.svelte', '**/*.svelte.ts'],
         languageOptions: {
             parserOptions: {
                 parser: tseslint.parser,
             },
+        },
+        rules: {
+            '@stylistic/indent': 'off',
+            'svelte/indent': ['error', { indent: INDENT }],
         },
     },
     {
