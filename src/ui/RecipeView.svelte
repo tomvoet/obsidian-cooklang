@@ -93,7 +93,7 @@
   {/if}
   {#if ingredients.length > 0}
     <h2>Ingredients</h2>
-    <ul class="cook-requirements-wrapper">
+    <ul class="grid grid-cols-[repeat(auto-fit,minmax(300px,3fr))]">
       {#each ingredients as ingredient (ingredient.name)}
         <li>{ingredient.display} {ingredient.name}</li>
       {/each}
@@ -101,7 +101,7 @@
   {/if}
   {#if cookware.length > 0}
     <h2>Cookware</h2>
-    <ul class="cook-requirements-wrapper">
+    <ul class="grid grid-cols-[repeat(auto-fit,minmax(300px,3fr))]">
       {#each cookware as item (item.name)}
         <li>{item.display} {item.name}</li>
       {/each}
@@ -109,10 +109,10 @@
   {/if}
   {#if timers.length > 0}
     <h2>Timers</h2>
-    <ul class="cook-requirements-wrapper">
+    <ul class="grid grid-cols-[repeat(auto-fit,minmax(300px,3fr))]">
       {#each timers as timer, i (i)}
         <li>
-          {#if timer.name}<span class="cook-timer-name">{timer.name}</span>{/if}
+          {#if timer.name}<span class="mr-2">{timer.name}</span>{/if}
           <TimerComponent seconds={timer.seconds} />
         </li>
       {/each}
@@ -141,10 +141,3 @@
     {/each}
   {/each}
 </div>
-
-<style>
-  .cook-requirements-wrapper {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 3fr));
-  }
-</style>
