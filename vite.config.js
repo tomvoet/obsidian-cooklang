@@ -1,9 +1,9 @@
 import path from "node:path";
 import { copyFileSync } from "node:fs";
+import { builtinModules } from "node:module";
 import { defineConfig } from "vite";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import tailwindcss from "@tailwindcss/vite";
-import builtins from "builtin-modules";
 
 // Copy the runtime-loaded cooklang WASM next to main.js after each build.
 function copyCooklangWasm() {
@@ -52,7 +52,8 @@ export default defineConfig(({ mode }) => {
           "@lezer/common",
           "@lezer/highlight",
           "@lezer/lr",
-          ...builtins,
+          ...builtinModules,
+          ...builtinModules.map((m) => `node:${m}`),
         ],
       },
     },
